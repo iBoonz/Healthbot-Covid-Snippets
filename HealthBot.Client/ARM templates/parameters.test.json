@@ -1,0 +1,35 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+  "parameters": {
+    "storageAccountName": {
+      "value": "botstorage9939"
+    },
+    "containerName": {
+      "value": "$web"
+    },
+    "location": {
+      "value": "westeurope"
+    },
+    "FunctionHostingPlanName": {
+      "value": "HoorneBbBotStorage-ASP"
+    },
+    "FunctionSiteName": {
+      "value": "HoorneBbBot-Func"
+    },
+    "AppSecret": {
+      "value": ""
+    },
+    "WebchatSecret": {
+      "value": ""
+    },
+    "allowedOrigins": {
+      "value": [
+        "https://functions.azure.com",
+        "https://functions-staging.azure.com",
+        "https://functions-next.azure.com",
+        "http://localhost:54632"
+      ]
+    }
+  }
+}

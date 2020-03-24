@@ -1,0 +1,35 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="~/css/siteframe.css" />
+</head>
+
+<body>
+    <script src="https://cdn.botframework.com/botframework-webchat/latest/webchat-es5.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8=" crossorigin="anonymous"></script>
+    <script src="~/js/siteframe.js" asp-append-version="true"></script>
+
+    <div id="botContainer" style="display:none"></div>
+
+    <noscript>
+        Please enable Javascript to use this bot.
+    </noscript>
+    <div id="notSupported" style="display:none;padding-top: 200px;text-align: center;">
+        <img src="~/images/notSupported.png" />
+    </div>
+    <script>
+        setTimeout(function () {
+            if (!window.supported) {
+                document.getElementById("notSupported").style.display = "block";
+            }
+        }, 4000);
+    </script>
+</body>
+
+</html>

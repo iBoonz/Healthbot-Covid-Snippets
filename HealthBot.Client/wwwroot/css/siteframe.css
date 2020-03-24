@@ -1,0 +1,83 @@
+﻿body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+#botContainer {
+    background: #ffffff;
+    height: 700px;
+    width: 400px;
+    border: 1.5px solid #91a9b5;
+}
+
+    #botContainer.wc-display {
+        display: block;
+    }
+
+
+#floating-bot {
+    z-index: 1001;
+}
+
+.ac-textBlock ul {
+    width: 280px !important;
+    word-break: break-word;
+    word-wrap: break-word;
+}
+
+#floating-bot, #floating-bot-loader {
+    font-weight: 700;
+    cursor: pointer;
+    font-family: Arial,sans-serif;
+    text-align: center;
+    height: 20px;
+    line-height: 20px
+}
+
+    #floating-bot, #floating-bot:after, #floating-bot:before, #floating-bot-loader, #floating-bot-loader:after, #floating-bot-loader:before {
+        position: fixed;
+        display: block;
+        bottom: 110px;
+        right: 0px;
+        content: ""
+    }
+
+#floating-bot, #floating-bot-loader {
+    width: 220px;
+    height: 100px;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0)
+}
+
+    #floating-bot:after, #floating-bot-loader:after {
+        bottom: -8px
+    }
+
+.old-button {
+    font-weight: 600;
+    -webkit-appearance: none;
+    border-style: solid;
+    padding: 10px;
+}
+
+.ac-pushButton:hover {
+    background-color: transparent;
+    border-color: #0078d7;
+    color: #0078d7;
+}
+
+.markdown {
+    background: #eceff1;
+}
+
+.bot-container-loader,
+.bot-container-loader:after {
+    border-radius: 50%;
+    width: 10em;
+    height: 10em;
+}
+
+.css-eycyw2 {
+    display: none;
+}

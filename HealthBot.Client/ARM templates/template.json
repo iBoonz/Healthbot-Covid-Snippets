@@ -1,0 +1,181 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "storageAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "Specifies the name of the Azure Storage account."
+            }
+        },
+        "containerName": {
+            "type": "string",
+            "defaultValue": "logs",
+            "metadata": {
+                "description": "Specifies the name of the blob container."
+            }
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "Specifies the location in which the Azure resources should be deployed."
+            }
+        },
+        "FunctionHostingPlanName": {
+            "type": "string",
+            "metadata": {
+                "description": "Specifies the serverfarm for"
+            }
+        },
+        "FunctionSiteName": {
+            "type": "string",
+            "metadata": {
+                "description": "Specifies the serverfarm for"
+            }
+        },
+        "AppSecret": {
+            "type": "securestring",
+            "metadata": {
+                "description": "App secret of the HealtCarebot"
+            }
+        },
+        "WebchatSecret": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Webchat Secret of the HealthCarebot"
+            }
+        },
+        "allowedOrigins":{
+                        "type": "array",
+            "metadata": {
+                "description": "Array of CORS sites"
+            }
+        }
+    },
+    "variables": {
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2018-07-01",
+            "name": "[parameters('storageAccountName')]",
+            "location": "[parameters('location')]",
+            "kind": "StorageV2",
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "properties": {
+                "accessTier": "Hot",
+                "supportsHttpsTrafficOnly": true,
+                "isHnsEnabled": true
+            },
+            "resources": [
+                {
+                    "name": "[concat('default/', parameters('containerName'))]",
+                    "type": "blobServices/containers",
+                    "apiVersion": "2018-07-01",
+                    "dependsOn": [
+                        "[parameters('storageAccountName')]"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2018-02-01",
+            "name": "[parameters('FunctionHostingPlanName')]",
+            "location": "[parameters('location')]",
+            "kind": "functionapp",
+            "properties": {
+                "reserved": false
+            },
+            "sku": {
+                "Tier": "Dynamic",
+                "Name": "Y1"
+            }
+        },
+      {
+        "type": "Microsoft.Web/sites",
+        "apiVersion": "2018-02-01",
+        "name": "[parameters('FunctionSiteName')]",
+        "kind": "functionapp",
+        "location": "[parameters('location')]",
+        "dependsOn": [
+          "[resourceId('Microsoft.Web/serverfarms', parameters('FunctionhostingPlanName'))]",
+          "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+        ],
+        "properties": {
+          "name": "[parameters('FunctionSiteName')]",
+          "siteConfig": {
+            "appSettings": [
+              {
+                "name": "APP_SECRET",
+                "value": "[parameters('AppSecret')]"
+              },
+              {
+                "name": "AzureWebJobsStorage",
+                "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('storageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2019-06-01').keys[0].value)]"
+              },
+              {
+                "name": "DirectLineUri",
+                "value": "https://directline.botframework.com/v3/directline/tokens/generate"
+              },
+              {
+                "name": "FUNCTIONS_EXTENSION_VERSION",
+                "value": "~2"
+              },
+              {
+                "name": "FUNCTIONS_WORKER_RUNTIME",
+                "value": "dotnet"
+              },
+              {
+                "name": "WEBCHAT_SECRET",
+                "value": "[parameters('WebchatSecret')]"
+              }
+            ]
+          },
+          "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('FunctionhostingPlanName'))]",
+          "clientAffinityEnabled": false
+        },
+        "resources": [
+          {
+            "apiVersion": "2018-02-01",
+            "name": "web",
+            "type": "sourcecontrols",
+            "dependsOn": [
+              "[resourceId('Microsoft.Web/sites/', parameters('FunctionSiteName'))]"
+            ],
+            "properties": {
+              "RepoUrl": "https://github.com/iBoonz/TokenGenerator.git",
+              "branch": "master",
+              "publishRunbook": true,
+              "IsManualIntegration": true
+            }
+          }
+        ]
+      },
+        {
+            "type": "Microsoft.Web/sites/config",
+            "apiVersion": "2018-11-01",
+            "name": "[concat(parameters('FunctionSiteName'), '/web')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('FunctionSiteName'))]"
+            ],
+            "properties": {
+
+                "cors": {
+                    "allowedOrigins": "[Parameters('allowedOrigins')]",
+                    "supportCredentials": false
+                }
+
+            }
+        }
+    ],
+    "outputs": {
+    },
+    "functions": [
+    ]
+}
