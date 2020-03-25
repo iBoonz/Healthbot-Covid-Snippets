@@ -22,7 +22,7 @@
     position: absolute;
     bottom: 600px;
     right: 0px;
-    background: #c12143;
+    background: #008baf;
     height: 35px;
     width: 403px;
     color: #fff;
@@ -43,7 +43,7 @@
     background: #ffffff;
     height: 600px;
     width: 400px;
-    border: 1.5px solid #c12143;
+    border: 1.5px solid #008baf;
 }
 
 #botContainer.wc-display {
