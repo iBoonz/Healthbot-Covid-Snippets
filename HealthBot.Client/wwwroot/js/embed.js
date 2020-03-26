@@ -191,8 +191,8 @@ function getTemplate(url, lang) {
                 <select id="floating-bot-loader-lang" onchange="javascript:Covid19Embed.changeLanguage()">
                     <option value="da-dk" ${lang === 'da-dk' ? 'selected' : ''}>Dansk</option>
                     <option value="en-us" ${lang === 'en-us' ? 'selected' : ''}>English</option>
-                    <option value="da-dk" ${lang === 'de-de' ? 'selected' : ''}>German</option>
-                    <option value="en-us" ${lang === 'tr-tr' ? 'selected' : ''}>Türkçe</option>
+                    <option value="de-de" ${lang === 'de-de' ? 'selected' : ''}>German</option>
+                    <option value="tr-tr" ${lang === 'tr-tr' ? 'selected' : ''}>Türkçe</option>
                 </select>
             </div>
             <a class="botCloseButtonRight" href="javascript:Covid19Embed.close()"></a>
