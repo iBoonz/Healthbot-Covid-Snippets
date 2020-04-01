@@ -1,8 +1,10 @@
 ﻿var DEV_URL = 'http://localhost:54632';
 var PROD_URL = '';
+var botFrame;
 var Embed = (function () {
     function Embed() {
         this.language = navigator.language ? navigator.language.toLowerCase() : 'en-us';
+        this.isRunning = false;
     }
     Embed.prototype.init = function (settings) {
         this.settings = settings;
@@ -11,44 +13,86 @@ var Embed = (function () {
     };
     Embed.prototype.close = function () {
         var loaderElm = document.getElementById('floating-bot-loader');
+        var bottonImage = document.getElementById('floating-bot-image');
+        var callToActionUri = botUrl + "/images/CallToAction.png";
+        var bottonElm = document.getElementById('floating-bot');
+        this.isRunning = false;
+
         if (loaderElm) {
+            loaderElm.removeChild(botFrame);
             loaderElm.style.display = 'none';
+            bottonImage.src = callToActionUri;
+            bottonImage.style.display = 'block';
+            bottonElm.style.display = 'block';
+
         }
     };
     Embed.prototype.start = function () {
-        var loadingImageUrl = this.botUrl + "/images/Loading.png";
-        var loaderElm = document.getElementById('floating-bot-loader');
-        var bottonElm = document.getElementById('floating-bot');
-        var url = this.botUrl + "/home/IndexFrame?source=" + location.host + "&lang=" + this.language;
-        console.log(url);
-        if (!this.mobilecheck()) {
-            this.botFrame = document.createElement("iframe");
-            var bottonImage = document.getElementById('floating-bot-image');
-            this.botFrame.src = url;
-            this.botFrame.width = "403px";
-            this.botFrame.height = "703px";
-            this.botFrame.onload = function () {
-                setTimeout(function () {
-                    bottonElm.style.display = 'none';
-                    loaderElm.style.display = 'block';
-                }, 1300);
-            };
-            loaderElm.appendChild(this.botFrame);
-            bottonImage.src = loadingImageUrl;
-        }
-        else {
-            this.botWindow = window.open(url);
-            bottonElm.style.display = 'none';
+        if (!this.isRunning) {
+            this.isRunning = true;
+            var loadingImageUrl = botUrl + "/images/Loading.png";
+            var loaderElm = document.getElementById('floating-bot-loader');
+            var bottonElm = document.getElementById('floating-bot');
+            var url = botUrl + "?source=" + location.href + "&lang=" + this.language;
+            if (!this.mobilecheck()) {
+                botFrame = document.createElement("iframe");
+                var bottonImage = document.getElementById('floating-bot-image');
+                botFrame.src = url;
+                botFrame.width = "403px";
+                botFrame.height = "703px";
+             
+                botFrame.onload = function () {
+                    setTimeout(function () {
+                        bottonElm.style.display = 'none';
+                        loaderElm.style.display = 'block';
+                    }, 1300);
+                };
+                loaderElm.appendChild(botFrame);
+                bottonImage.src = loadingImageUrl;
+                this.changeLanguageInner();
+            }
+            else {
+                this.changeLanguageInner();
+                this.botWindow = window.open(url);
+                bottonElm.style.display = 'none';
+            }
         }
     };
+    Embed.prototype.restart = function () {
+        this.changeLanguage();
+    };
+
     Embed.prototype.changeLanguage = function () {
+        var loaderElm = document.getElementById('floating-bot-loader');
+        var bottonElm = document.getElementById('floating-bot');
+  
+        bottonElm.style.display = 'block';
+        loaderElm.style.display = 'none';
         this.language = document.getElementById('floating-bot-loader-lang').value;
-        var url = this.botUrl + "?source=" + location.host + "&lang=" + this.language;
+        var url = botUrl + "?source=" + location.href + "&lang=" + this.language;
+        this.changeLanguageInner();
+        setTimeout(function () {
+            bottonElm.style.display = 'none';
+            loaderElm.style.display = 'block';
+        }, 1300);
+
         if (this.botWindow) {
             this.botWindow.location.href = url;
         }
         else {
-            this.botFrame.src = url;
+            botFrame.src = url;
+        }
+    };
+
+    Embed.prototype.changeLanguageInner = function(){
+        var closeBtn = document.getElementById('closeBtn');
+        var restartBtn = document.getElementById('restartBtn');
+        if (this.language === "sv-se") {
+            closeBtn.innerHTML = "AVSLUTA";
+            restartBtn.innerHTML = "GÖR OM";
+        } else {
+            closeBtn.innerHTML = "CLOSE";
+            restartBtn.innerHTML = "RESET";
         }
     };
     Embed.prototype.mobilecheck = function () {
@@ -61,7 +105,7 @@ var Embed = (function () {
     };
     Embed.prototype.renderTemplate = function (target) {
         var container = document.createElement('div');
-        container.innerHTML = getTemplate(this.botUrl, this.language);
+        container.innerHTML = getTemplate(botUrl, this.language);
         var targetElm = document.querySelector(target);
         if (targetElm) {
             targetElm.appendChild(container);
@@ -73,8 +117,9 @@ var Embed = (function () {
 var Covid19Embed = new Embed();
 window.Covid19Embed = Covid19Embed;
 function getTemplate(url, lang) {
+
     return `<style>
-        .animated {
+          .animated {
             -webkit-animation-duration: 5s;
             animation-duration: 5s;
             -webkit-animation-fill-mode: both;
@@ -129,7 +174,7 @@ function getTemplate(url, lang) {
         #floating-bot {
             display: block;
             position: fixed;
-            bottom: 250px;
+            bottom: 40px;
             right: -10px;
             z-index: 999999;
         }
@@ -141,6 +186,7 @@ function getTemplate(url, lang) {
             right: 0;
             bottom: 0;
             z-index: 999999;
+            border: thin solid #2278D3;
         }
         
         #floating-bot-loader iframe {
@@ -149,39 +195,46 @@ function getTemplate(url, lang) {
         }        
         
         #botCloseButton {
-            height: 22px;
-            background-color: #007dbb;
+            height: 35px;
+            background-color: #2278D3;
         }
     
         #botCloseButton .botCloseButtonLeft {
             float: left;
+            padding: 7px;  
         }
         
         #botCloseButton .botCloseButtonLeft .globe {
-            margin: 3px 2px 0 5px;
+            margin: 1px 2px 0 5px;
             width: 16px;
             height: 16px;
             float: left;
+            background: no-repeat url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAF+mlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDUgNzkuMTYzNDk5LCAyMDE4LzA4LzEzLTE2OjQwOjIyICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ0MgMjAxOSAoV2luZG93cykiIHhtcDpDcmVhdGVEYXRlPSIyMDIwLTAzLTIxVDEyOjQ1OjQwKzAxOjAwIiB4bXA6TW9kaWZ5RGF0ZT0iMjAyMC0wMy0yMVQxNDo0NzoxNCswMTowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyMC0wMy0yMVQxNDo0NzoxNCswMTowMCIgZGM6Zm9ybWF0PSJpbWFnZS9wbmciIHBob3Rvc2hvcDpDb2xvck1vZGU9IjMiIHBob3Rvc2hvcDpJQ0NQcm9maWxlPSJzUkdCIElFQzYxOTY2LTIuMSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDpjMGU4ZWU4ZS1lZWM3LTg5NGUtYWI2Mi1iMjFkMjE0ZDM5ZDgiIHhtcE1NOkRvY3VtZW50SUQ9ImFkb2JlOmRvY2lkOnBob3Rvc2hvcDowZWY0ZjdiYS1hZTE4LTBkNGEtYWFlMi03OTk2NTNiOWIyZjEiIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo2NmJhZTBkNC0yNGI5LTkwNDYtYTI2YS05MTU3YjY5Mzk3MTgiPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjcmVhdGVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjY2YmFlMGQ0LTI0YjktOTA0Ni1hMjZhLTkxNTdiNjkzOTcxOCIgc3RFdnQ6d2hlbj0iMjAyMC0wMy0yMVQxMjo0NTo0MCswMTowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTkgKFdpbmRvd3MpIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDpjMGU4ZWU4ZS1lZWM3LTg5NGUtYWI2Mi1iMjFkMjE0ZDM5ZDgiIHN0RXZ0OndoZW49IjIwMjAtMDMtMjFUMTQ6NDc6MTQrMDE6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCBDQyAyMDE5IChXaW5kb3dzKSIgc3RFdnQ6Y2hhbmdlZD0iLyIvPiA8L3JkZjpTZXE+IDwveG1wTU06SGlzdG9yeT4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz68fJbmAAABYklEQVQ4y42TS0oDQRCG28Qr6CYo3sJcQhTErRE8gKAXEMFIXLmW6DaKAV2JaxPDQBAEleAj0WCIibp0KY5/4dfQGfAx8A3VNVU1XS8Xx3FKDAsHGbEk6qIFdXSZwM580i7hvCl68ffTFNfiUtyiexGFMIi9hjjsippYE3106yKP3BWrIsLWdCkfaZk/zIhjUeJmJ2DynjgUU9iumK85j4gPURYXfLwRbfEOVocG386xtWfUAhTFAzfJke+EyIozURWTYkzcYeMIuuOFBZRb4iAo0jb4cxkbh0/LcbVT8nsTHWTjGfy5QydMrliXHPnWUFqln/4I8JoM8CgWudaG2P9nCjmfQpE6mDxHSuMUrgpZCmsFnk8W0dr4SZ8j2tPAwLexTaoxkznQxnCQpsURwZKDVGLIZpODlApGOWJcu+jywSj3GfNKcpTDZSrQpph8r1ioJroeCzewTOlf1vkeflznLwNagRKedtihAAAAAElFTkSuQmCC);
         }
         
         #botCloseButton .botCloseButtonLeft select {
             float: left;
-            font-size: 12px;
+            font-size: 15px;
             font-family: sans-serif;
             color: #000;
             border: 0 none;
-            background-color: #007dbb;
+            background-color: #2278D3;
             color: #fff;
-            margin-top: 4px;
+           margin-top: -1px;
         }
     
         #botCloseButton .botCloseButtonRight {
-            display: block;
-            width: 20px;
+              display: block;
+            width: 68px;
             height: 20px;
             float: right;
-            margin-right: 3px;
-        }
+            margin: 6px 10px 0 0;
+            content: "X";
+            color: white;
+            text-decoration: none;
+            font-size: 15px;
+            text-align: right;
+          }
     </style>
     
     <div id="floating-bot-loader">
@@ -189,11 +242,13 @@ function getTemplate(url, lang) {
             <div class="botCloseButtonLeft">
                 <div class="globe"></div>
                 <select id="floating-bot-loader-lang" onchange="javascript:Covid19Embed.changeLanguage()">
-                    <option value="da-dk" ${lang === 'da-dk' ? 'selected' : ''}>Dansk</option>
-                    <option value="en-us" ${lang === 'en-us' ? 'selected' : ''}>English</option>
+                <option value="da-dk" ${lang === 'da-dk' ? 'selected' : ''}>Dansk</option>
+                <option value="sv-se" ${lang === 'sv-se' ? 'selected' : ''}>Svenska</option>
+                <option value="en-us" ${lang === 'en-us' ? 'selected' : ''}>English</option>
                 </select>
             </div>
-            <a class="botCloseButtonRight" href="javascript:Covid19Embed.close()"></a>
+            <a class="botCloseButtonRight" id="closeBtn" href="javascript:Covid19Embed.close()"></a>
+            <a class="botCloseButtonRight" id="restartBtn" href="javascript:Covid19Embed.restart()"></a>
         </div>
     </div>
     <div id="floating-bot" class="shake animated">

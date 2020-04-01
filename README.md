@@ -89,3 +89,12 @@ See the example page below:
     - Make sure the scenario name in `trigger: "Covid19"` is correct
     - Make sure the locale for translations is correct
 - The botcontainer div should be present in the html and is used to display the web chat
+
+
+![Architecture](https://github.com/iBoonz/Healthbot-Covid-Snippets/tree/master/HealthBot.Client/Healthbot-simpel.png)
+
+
+There is also the option to deploy the bot on a static website, and inject this on the client browsers with Javascript. The architecture can be found below: 
+
+
+![Embedding Architecture](https://github.com/iBoonz/Healthbot-Covid-Snippets/tree/master/HealthBot.Client/Healthbot-Embed.png)
