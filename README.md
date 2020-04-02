@@ -89,6 +89,7 @@ document.getElementById("notSupported").style.display = "block";
 ![Architecture](https://github.com/iBoonz/Healthbot-Covid-Snippets/blob/master/HealthBot.Client/Architecture/Healthbot-simpel.jpg)
 
 There is also the option to deploy the bot on a static website, and inject this on the client browsers with Javascript. The architecture can be found below:
+
 ![Embedding Architecture](https://github.com/iBoonz/Healthbot-Covid-Snippets/blob/master/HealthBot.Client/Architecture/Healthbot-Embed.jpg)
 
 
